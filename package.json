@@ -13,8 +13,6 @@
     "license": "ISC",
     "description": "",
     "dependencies": {
-        "@hono/node-server": "^1.11.2",
-        "hono": "^4.4.3",
         "puppeteer-core": "^22.10.0"
     },
     "devDependencies": {

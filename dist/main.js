@@ -1,32 +1,37 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const hono_1 = require("hono");
-const node_server_1 = require("@hono/node-server");
-const functions_1 = require("./functions");
+const slackfunctions_1 = require("./slackfunctions");
+const getBrowserIp_1 = require("./util/getBrowserIp");
+const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
 const { env } = process;
-const app = new hono_1.Hono();
-app.post("/api/chat", async (c) => {
-    try {
+const main = async () => {
+    // ブラウザ起動
+    const ip = env.browserIp ?? (0, getBrowserIp_1.getBrowserIp)();
+    const port = env.browserPort ?? 9222;
+    const options = { browserURL: `http://${ip}:${port}` };
+    const browser = await puppeteer_core_1.default.connect(options);
+    // slackにアクセス
+    const slackPage = await browser.newPage();
+    await slackPage.goto(env.slackUrl, { waitUntil: "domcontentloaded" });
+    // 無限ループ開始
+    while (true) {
+        console.log("loop!!");
         // 質問取得
-        const { text } = await c.req.json();
-        if (!text)
-            return c.json({ error: "text undefined!!" }, 200);
-        console.log(`%cquestion: ${text}`, "background: white; color: blue;");
-        // 質問投稿
-        const chatgptPage = await (0, functions_1.startBrowser)();
-        await (0, functions_1.postChatgpt)({ page: chatgptPage, text });
-        // 回答完了を待つ
-        const answerText = await (0, functions_1.chatgptMonitoring)({ page: chatgptPage });
-        console.log(`%canswer: ${answerText}`, "background: white; color: red;");
-        // 返却
-        return c.json({ text: answerText });
+        const questionText = await (0, slackfunctions_1.monitorSlack)({ page: slackPage });
+        console.log(`%cquestion: ${questionText}`, "background: white; color: blue;");
+        // 質問をローカルサーバーに投げる
+        const answerText = await (0, slackfunctions_1.sendPostRequest)({ text: questionText });
+        // 回答をslackに投稿
+        await (0, slackfunctions_1.postSlack)({ page: slackPage, text: answerText });
+        await (0, slackfunctions_1.postSlack)({ page: slackPage, text: "-" });
     }
-    catch (error) {
-        console.error(error);
-        return c.json({ error: error.message }, 200);
-    }
-});
-(0, node_server_1.serve)({
-    fetch: app.fetch,
-    port: env.honoPort,
-});
+};
+try {
+    main();
+}
+catch (error) {
+    console.error(error);
+}
