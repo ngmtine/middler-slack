@@ -79,7 +79,6 @@ const postChatgpt = async ({ page, text }: { page: Page; text: string }) => {
     await inputArea.type(text);
 
     // 送信ボタン押下
-    // await wait(1000); // ボタン取得即押下してもイベント付与されてない場合があるっぽいので一瞬待つ
     const button = await page.waitForSelector("main form button[data-testid='fruitjuice-send-button']", { timeout: 1000 * 10 });
     if (!button) throw new Error("sendbutton undefined!!");
     await button.click();
