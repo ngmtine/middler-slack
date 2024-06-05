@@ -28,3 +28,11 @@ netsh interface portproxy add v4tov4 listenaddress=[wsl address] listenport=9222
 New-NetFirewallRule -DisplayName 'chromedebug' -Direction Inbound -LocalPort 9222 -Protocol TCP -Action Allow
 New-NetFirewallRule -DisplayName 'chromedebug' -Direction Outbound -RemotePort 9222 -Protocol TCP -Action Allow
 ```
+
+### curl
+
+```sh
+curl -X POST http://localhost:3000/api/chat \
+      -H "Content-Type: application/json" \
+      -d '{"text": "元気ですかー！！"}'
+```
