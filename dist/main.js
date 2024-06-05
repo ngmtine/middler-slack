@@ -8,21 +8,20 @@ const node_server_1 = require("@hono/node-server");
 const promises_1 = require("node:timers/promises");
 const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
 const getBrowserIp_1 = require("./util/getBrowserIp");
-const wait_1 = require("./util/wait");
 const { env } = process;
 const startBrowser = async () => {
     // ブラウザ起動
-    const ip = env.ip ?? (0, getBrowserIp_1.getBrowserIp)();
-    const port = env.port ?? 9222;
-    const options = { browserURL: `http://${ip}:${port}` };
+    const browserIp = env.browserIp ?? (0, getBrowserIp_1.getBrowserIp)();
+    const browserPort = env.browserPort ?? 9222;
+    const options = { browserURL: `http://${browserIp}:${browserPort}` };
     const browser = await puppeteer_core_1.default.connect(options);
-    // Geminiにアクセス
-    const geminiPage = await browser.newPage();
-    await geminiPage.goto(env.geminiUrl, { waitUntil: "domcontentloaded" });
-    return { geminiPage };
+    // chatgptにアクセス
+    const chatgptPage = await browser.newPage();
+    await chatgptPage.goto(env.chatgptUrl, { waitUntil: "domcontentloaded" });
+    return { chatgptPage };
 };
-// geminiの回答を待つ
-const geminiMonitoring = async ({ page }) => {
+// chatgptの回答を待つ
+const chatgptMonitoring = async ({ page }) => {
     let prevText = "";
     let generatingText = "";
     const interval = 1500; // 1.5秒（短すぎると回答完了前にreturnしてしまう）
@@ -31,14 +30,14 @@ const geminiMonitoring = async ({ page }) => {
         try {
             page.bringToFront();
             // 最後の回答の要素を取得
-            const messageContentList = await page.$$("message-content");
+            const messageContentList = await page.$$("div.markdown");
             const lastMessageSection = messageContentList.at(-1);
             if (!lastMessageSection)
                 continue;
             // 最後の回答の要素のテキストを取得
-            const text = await lastMessageSection.evaluate((el) => {
+            const text = await lastMessageSection.evaluate((elm) => {
                 let out = "";
-                for (const child of el.querySelectorAll("div > *")) {
+                for (const child of elm.querySelectorAll("*")) {
                     out += child.textContent + "\n";
                 }
                 return out;
@@ -60,11 +59,11 @@ const geminiMonitoring = async ({ page }) => {
     }
     return generatingText;
 };
-// geminiに質問を投げる
-const postGemini = async ({ page, text }) => {
+// chatgptに質問を投げる
+const postChatgpt = async ({ page, text }) => {
     page.bringToFront();
     // 入力欄要素取得
-    const inputArea = await page.waitForSelector("rich-textarea");
+    const inputArea = await page.waitForSelector("main form");
     if (!inputArea)
         throw new Error("inputArea undefined!!");
     // 入力欄要素にテキスト入力
@@ -72,8 +71,8 @@ const postGemini = async ({ page, text }) => {
     await inputArea.press("Backspace");
     await inputArea.type(text);
     // 送信ボタン押下
-    await (0, wait_1.wait)(1000); // ボタン取得即押下してもイベント付与されてない場合があるっぽいので一瞬待つ
-    const button = await page.waitForSelector("button.send-button", { timeout: 1000 * 10 });
+    // await wait(1000); // ボタン取得即押下してもイベント付与されてない場合があるっぽいので一瞬待つ
+    const button = await page.waitForSelector("main form button[data-testid='fruitjuice-send-button']", { timeout: 1000 * 10 });
     if (!button)
         throw new Error("sendbutton undefined!!");
     await button.click();
@@ -87,10 +86,10 @@ app.post("/api/chat", async (c) => {
             return c.json({ error: "text undefined!!" }, 200);
         console.log(`%cquestion: ${text}`, "background: white; color: blue;");
         // 質問投稿
-        const { geminiPage } = await startBrowser();
-        await postGemini({ page: geminiPage, text });
+        const { chatgptPage } = await startBrowser();
+        await postChatgpt({ page: chatgptPage, text });
         // 回答完了を待つ
-        const answerText = await geminiMonitoring({ page: geminiPage });
+        const answerText = await chatgptMonitoring({ page: chatgptPage });
         console.log(`%canswer: ${answerText}`, "background: white; color: red;");
         // 返却
         return c.json({ text: answerText });

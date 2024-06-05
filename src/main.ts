@@ -3,26 +3,25 @@ import { serve } from "@hono/node-server";
 import { setInterval as promiseSetInterval } from "node:timers/promises";
 import puppeteer, { Page } from "puppeteer-core";
 import { getBrowserIp } from "./util/getBrowserIp";
-import { wait } from "./util/wait";
 
 const { env }: { env: any } = process;
 
 const startBrowser = async () => {
     // ブラウザ起動
-    const ip = env.ip ?? getBrowserIp();
-    const port = env.port ?? 9222;
-    const options = { browserURL: `http://${ip}:${port}` };
+    const browserIp = env.browserIp ?? getBrowserIp();
+    const browserPort = env.browserPort ?? 9222;
+    const options = { browserURL: `http://${browserIp}:${browserPort}` };
     const browser = await puppeteer.connect(options);
 
-    // Geminiにアクセス
-    const geminiPage = await browser.newPage();
-    await geminiPage.goto(env.geminiUrl, { waitUntil: "domcontentloaded" });
+    // chatgptにアクセス
+    const chatgptPage = await browser.newPage();
+    await chatgptPage.goto(env.chatgptUrl, { waitUntil: "domcontentloaded" });
 
-    return { geminiPage };
+    return { chatgptPage };
 };
 
-// geminiの回答を待つ
-const geminiMonitoring = async ({ page }: { page: Page }): Promise<string> => {
+// chatgptの回答を待つ
+const chatgptMonitoring = async ({ page }: { page: Page }): Promise<string> => {
     let prevText = "";
     let generatingText = "";
 
@@ -34,14 +33,14 @@ const geminiMonitoring = async ({ page }: { page: Page }): Promise<string> => {
             page.bringToFront();
 
             // 最後の回答の要素を取得
-            const messageContentList = await page.$$("message-content");
+            const messageContentList = await page.$$("div.markdown");
             const lastMessageSection = messageContentList.at(-1);
             if (!lastMessageSection) continue;
 
             // 最後の回答の要素のテキストを取得
-            const text = await lastMessageSection.evaluate((el) => {
+            const text = await lastMessageSection.evaluate((elm) => {
                 let out = "";
-                for (const child of el.querySelectorAll("div > *")) {
+                for (const child of elm.querySelectorAll("*")) {
                     out += child.textContent + "\n";
                 }
                 return out;
@@ -66,12 +65,12 @@ const geminiMonitoring = async ({ page }: { page: Page }): Promise<string> => {
     return generatingText;
 };
 
-// geminiに質問を投げる
-const postGemini = async ({ page, text }: { page: Page; text: string }) => {
+// chatgptに質問を投げる
+const postChatgpt = async ({ page, text }: { page: Page; text: string }) => {
     page.bringToFront();
 
     // 入力欄要素取得
-    const inputArea = await page.waitForSelector("rich-textarea");
+    const inputArea = await page.waitForSelector("main form");
     if (!inputArea) throw new Error("inputArea undefined!!");
 
     // 入力欄要素にテキスト入力
@@ -80,8 +79,8 @@ const postGemini = async ({ page, text }: { page: Page; text: string }) => {
     await inputArea.type(text);
 
     // 送信ボタン押下
-    await wait(1000); // ボタン取得即押下してもイベント付与されてない場合があるっぽいので一瞬待つ
-    const button = await page.waitForSelector("button.send-button", { timeout: 1000 * 10 });
+    // await wait(1000); // ボタン取得即押下してもイベント付与されてない場合があるっぽいので一瞬待つ
+    const button = await page.waitForSelector("main form button[data-testid='fruitjuice-send-button']", { timeout: 1000 * 10 });
     if (!button) throw new Error("sendbutton undefined!!");
     await button.click();
 };
@@ -96,11 +95,11 @@ app.post("/api/chat", async (c) => {
         console.log(`%cquestion: ${text}`, "background: white; color: blue;");
 
         // 質問投稿
-        const { geminiPage } = await startBrowser();
-        await postGemini({ page: geminiPage, text });
+        const { chatgptPage } = await startBrowser();
+        await postChatgpt({ page: chatgptPage, text });
 
         // 回答完了を待つ
-        const answerText = await geminiMonitoring({ page: geminiPage });
+        const answerText = await chatgptMonitoring({ page: chatgptPage });
         console.log(`%canswer: ${answerText}`, "background: white; color: red;");
 
         // 返却
