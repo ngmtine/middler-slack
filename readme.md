@@ -1,5 +1,10 @@
 れどめ
 
+### how to use
+
+chromeを--remote-debugging-portを指定して起動
+`node --env-file=.env ./dist/main.js`
+
 ### ubuntu22.04 dependencies:
 
 in the case of using puppeteer instead puppeteer-core

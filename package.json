@@ -4,6 +4,7 @@
     "main": "main.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "tsc",
         "eslint": "eslint . --fix",
         "prettier": "prettier --write '*' '!node_modules/**' '!.next/**' '!.git/**'",
         "format": "npm run eslint && npm run prettier"
