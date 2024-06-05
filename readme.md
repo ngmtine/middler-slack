@@ -24,11 +24,11 @@ https://qiita.com/lx-sasabo/items/9817adf4fa731b985b00
 
 ## 使い方
 
-chromeを--remote-debugging-portを指定して起動  
+win側のchromeを--remote-debugging-portを指定して起動  
 https://stackoverflow.com/questions/67703601/running-puppeteer-on-wsl2-controlling-the-chrome-on-windows  
 `Start-Process -FilePath "C:\Program Files\Google\Chrome\Application\chrome.exe" -ArgumentList "--remote-debugging-port=9222"`
 
-サーバープロセス起動  
+wsl側でサーバープロセス起動  
 `node --env-file=.env ./dist/main.js`
 
 ## 疎通確認
@@ -42,3 +42,11 @@ curl -X POST http://localhost:3000/api/chat \
 ## todo
 
 エラーで死んだときに自動復帰する機能
+
+## FAQ
+
+・chat gptの回答が途中で途切れる  
+=> envのwaitingIntervalを増やす
+
+・wsl以外の環境で動かしたい  
+=> コントリビュートしてね
