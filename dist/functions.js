@@ -7,6 +7,7 @@ exports.postChatgpt = exports.chatgptMonitoring = exports.startBrowser = void 0;
 const promises_1 = require("node:timers/promises");
 const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
 const getBrowserIp_1 = require("./util/getBrowserIp");
+const html2markdown_1 = require("./util/html2markdown");
 const { env } = process;
 // Pageオブジェクト取得
 const startBrowser = async () => {
@@ -37,13 +38,7 @@ const chatgptMonitoring = async ({ page }) => {
             if (!lastMessageSection)
                 continue;
             // 最後の回答の要素のテキストを取得
-            const text = await lastMessageSection.evaluate((elm) => {
-                let out = "";
-                for (const child of elm.querySelectorAll("*")) {
-                    out += child.textContent + "\n";
-                }
-                return out;
-            });
+            const text = await lastMessageSection.evaluate((div) => (0, html2markdown_1.html2markdown)(div));
             // 回答生成中ならばループ継続
             if (text !== generatingText) {
                 generatingText = text;
