@@ -17,23 +17,25 @@ const main = async () => {
 
     // 無限ループ開始
     while (true) {
-        console.log("loop!!");
+        try {
+            console.log("loop!!");
 
-        // 質問取得
-        const questionText = await monitorSlack({ page: slackPage });
-        console.log(`%cquestion: ${questionText}`, "background: white; color: blue;");
+            // 質問取得
+            const questionText = await monitorSlack({ page: slackPage });
+            console.log(`%cquestion: ${questionText}`, "background: white; color: blue;");
 
-        // 質問をローカルサーバーに投げる
-        const answerText = await sendPostRequest({ text: questionText });
+            // 質問をローカルサーバーに投げる
+            const answerText = await sendPostRequest({ text: questionText });
 
-        // 回答をslackに投稿
-        await postSlack({ page: slackPage, text: answerText });
-        await postSlack({ page: slackPage, text: "-" });
+            // 回答をslackに投稿
+            await postSlack({ page: slackPage, text: answerText });
+            await postSlack({ page: slackPage, text: "-" });
+        } catch (error) {
+            console.error(error);
+            console.warn("Retrying in 10 seconds...");
+            await new Promise((resolve) => setTimeout(resolve, 1000 * 10));
+        }
     }
 };
 
-try {
-    main();
-} catch (error) {
-    console.error(error);
-}
+main();
