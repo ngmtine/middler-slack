@@ -1,6 +1,7 @@
 import { setInterval as promiseSetInterval } from "node:timers/promises";
 import puppeteer, { Page } from "puppeteer-core";
 import { getBrowserIp } from "./util/getBrowserIp";
+import { html2markdown } from "./util/html2markdown";
 
 const { env }: { env: any } = process;
 
@@ -38,13 +39,7 @@ export const chatgptMonitoring = async ({ page }: { page: Page }): Promise<strin
             if (!lastMessageSection) continue;
 
             // 最後の回答の要素のテキストを取得
-            const text = await lastMessageSection.evaluate((elm) => {
-                let out = "";
-                for (const child of elm.querySelectorAll("*")) {
-                    out += child.textContent + "\n";
-                }
-                return out;
-            });
+            const text = await lastMessageSection.evaluate((div) => html2markdown(div));
 
             // 回答生成中ならばループ継続
             if (text !== generatingText) {
