@@ -1,11 +1,17 @@
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
+import { Page } from "puppeteer-core";
 
 import { startBrowser, chatgptMonitoring, postChatgpt } from "./functions";
 
 const { env }: { env: any } = process;
 
 const app = new Hono();
+
+let chatgptPage: Page;
+(async () => {
+    chatgptPage = await startBrowser();
+})();
 
 app.post("/api/chat", async (c) => {
     try {
@@ -15,7 +21,6 @@ app.post("/api/chat", async (c) => {
         console.log(`%cquestion: ${text}`, "background: white; color: blue;");
 
         // 質問投稿
-        const chatgptPage = await startBrowser();
         await postChatgpt({ page: chatgptPage, text });
 
         // 回答完了を待つ

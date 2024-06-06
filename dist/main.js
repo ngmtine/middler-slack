@@ -5,6 +5,10 @@ const node_server_1 = require("@hono/node-server");
 const functions_1 = require("./functions");
 const { env } = process;
 const app = new hono_1.Hono();
+let chatgptPage;
+(async () => {
+    chatgptPage = await (0, functions_1.startBrowser)();
+})();
 app.post("/api/chat", async (c) => {
     try {
         // 質問取得
@@ -13,7 +17,6 @@ app.post("/api/chat", async (c) => {
             return c.json({ error: "text undefined!!" }, 200);
         console.log(`%cquestion: ${text}`, "background: white; color: blue;");
         // 質問投稿
-        const chatgptPage = await (0, functions_1.startBrowser)();
         await (0, functions_1.postChatgpt)({ page: chatgptPage, text });
         // 回答完了を待つ
         const answerText = await (0, functions_1.chatgptMonitoring)({ page: chatgptPage });
