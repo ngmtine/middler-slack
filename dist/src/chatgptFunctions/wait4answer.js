@@ -52,7 +52,7 @@ const wait4answer = async ({ page }) => {
             text = (0, html2markdown_1.html2markdown)(answerDiv);
             // 回答完了したらループ終了
             prevConversationTurn = conversationTurn;
-            html = htmlText;
+            html = answerDiv.outerHTML;
             break;
         }
         catch (error) {

@@ -65,7 +65,7 @@ export const wait4answer = async ({ page }: { page: Page }): Promise<Returns> =>
 
             // 回答完了したらループ終了
             prevConversationTurn = conversationTurn;
-            html = htmlText;
+            html = answerDiv.outerHTML;
             break;
         } catch (error) {
             console.error(error);

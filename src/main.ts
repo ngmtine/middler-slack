@@ -29,6 +29,13 @@ app.post("/api/chat", async (c) => {
         const { text: answerText, html: responseHtml } = await wait4answer({ page: chatgptPage });
         console.log(`%canswer: ${answerText}`, "background: white; color: red;");
 
+        // markdownをローカルに保存
+        if (answerText) {
+            const filepath = "./response.md";
+            writeFileSync(filepath, answerText);
+            console.log(`HTML saved to ${filepath}`);
+        }
+
         // htmlをローカルに保存
         if (responseHtml) {
             const filepath = "./response.html";

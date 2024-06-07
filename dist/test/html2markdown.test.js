@@ -8,7 +8,7 @@ const node_path_1 = __importDefault(require("node:path"));
 const html2markdown_1 = require("../src/util/html2markdown");
 const text2HTMLDocument_1 = require("../src/util/text2HTMLDocument");
 const main = () => {
-    const dir = "./src/test/html";
+    const dir = "./test/html";
     const files = (0, node_fs_1.readdirSync)(dir);
     for (const file of files) {
         const ext = node_path_1.default.extname(file);
