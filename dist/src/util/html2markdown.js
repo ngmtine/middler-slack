@@ -13,13 +13,8 @@ const html2markdown = (div) => {
                 break;
             }
             case "PRE": {
-<<<<<<< HEAD:dist/util/html2markdown.js
-                const lang = child.getElementsByTagName("span")[0].textContent;
-                const code = child.getElementsByTagName("code")[0].textContent;
-=======
                 const lang = child.getElementsByTagName("span")?.[0]?.textContent ?? "";
                 const code = child.getElementsByTagName("code")?.[0]?.textContent ?? "";
->>>>>>> fork_master_main:dist/src/util/html2markdown.js
                 out += `\n\`\`\`${lang}\n${code}\`\`\`\n\n`;
                 break;
             }

@@ -1,6 +1,6 @@
-import { postSlack } from "../src/slackfunctions";
-import { getBrowserIp } from "../src/util/getBrowserIp";
 import puppeteer from "puppeteer-core";
+import { postSlack } from "../src/slackFunctions/postSlack";
+import { getBrowserIp } from "../src/util/getBrowserIp";
 
 const { env }: { env: any } = process;
 
