@@ -3,7 +3,7 @@ import { html2markdown } from "../util/html2markdown";
 import { text2HTMLDocument } from "../util/text2HTMLDocument";
 
 const main = () => {
-    const filePath = "./src/test/mock.html";
+    const filePath = "./src/test/mock2.html";
     const text = readFileSync(filePath, "utf-8");
     const html = text2HTMLDocument(text);
     const div = html.getElementsByTagName("div")[0];

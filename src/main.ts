@@ -10,7 +10,7 @@ const app = new Hono();
 
 let chatgptPage: Page;
 (async () => {
-    chatgptPage = await startBrowser();
+    chatgptPage = await startBrowser(env.chatgptUrl);
 })();
 
 app.post("/api/chat", async (c) => {
