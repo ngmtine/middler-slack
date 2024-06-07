@@ -4,22 +4,33 @@ exports.html2markdown = void 0;
 // htmlDocumentをmarkdownに変換
 const html2markdown = (div) => {
     let out = "";
-    for (const child of div.children) {
-        switch (child.tagName) {
+    const children = [...div.children];
+    while (children.length) {
+        const elm = children.shift();
+        if (!elm)
+            break;
+        switch (elm.tagName) {
             case "P": {
-                const content = child.innerHTML.replaceAll(/<br>/g, "\n");
+                const content = elm.innerHTML.replaceAll(/<br>/g, "\n");
                 out += content.replaceAll(/<code>(.*?)<\/code>/g, "`$1`");
                 out += "\n";
                 break;
             }
             case "PRE": {
-                const lang = child.getElementsByTagName("span")?.[0]?.textContent ?? "";
-                const code = child.getElementsByTagName("code")?.[0]?.textContent ?? "";
+                const lang = elm.getElementsByTagName("span")?.[0]?.textContent ?? "";
+                const code = elm.getElementsByTagName("code")?.[0]?.textContent ?? "";
                 out += `\n\`\`\`${lang}\n${code}\`\`\`\n\n`;
                 break;
             }
+            case "OL":
+            case "LI": {
+                for (const child of elm.children) {
+                    children.unshift(child);
+                }
+                break;
+            }
             default: {
-                out += child.textContent + "\n";
+                out += elm.textContent + "\n";
             }
         }
     }
