@@ -1,9 +1,10 @@
 import { setInterval as promiseSetInterval } from "node:timers/promises";
 
-import { ElementHandle, Page } from "puppeteer-core";
+import type { ElementHandle, Page } from "puppeteer-core";
 import { startBrowser } from "../src/functions";
-import { text2HTMLDocument } from "../src/util/text2HTMLDocument";
+
 import { html2markdown } from "../src/util/html2markdown";
+import { text2HTMLDocument } from "../src/util/text2HTMLDocument";
 
 const { env }: { env: any } = process;
 

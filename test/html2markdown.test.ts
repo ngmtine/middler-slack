@@ -1,5 +1,5 @@
-import { readFileSync, readdirSync, writeFileSync } from "fs";
-import path from "path";
+import { readFileSync, readdirSync, writeFileSync } from "node:fs";
+import path from "node:path";
 
 import { html2markdown } from "../src/util/html2markdown";
 import { text2HTMLDocument } from "../src/util/text2HTMLDocument";

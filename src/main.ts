@@ -1,8 +1,8 @@
-import { Hono } from "hono";
 import { serve } from "@hono/node-server";
-import { Page } from "puppeteer-core";
+import { Hono } from "hono";
+import type { Page } from "puppeteer-core";
 
-import { startBrowser, chatgptMonitoring, postChatgpt } from "./functions";
+import { chatgptMonitoring, postChatgpt, startBrowser } from "./functions";
 
 const { env }: { env: any } = process;
 
