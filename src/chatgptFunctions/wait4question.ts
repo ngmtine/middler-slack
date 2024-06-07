@@ -13,7 +13,7 @@ type Returns = {
 let prevConversationTurn = "";
 
 // chatgptの回答を待つ
-export const wait4answer = async ({ page }: { page: Page }): Promise<Returns> => {
+export const wait4question = async ({ page }: { page: Page }): Promise<Returns> => {
     console.log(`prevConversationTurn: ${prevConversationTurn}`);
 
     let text = "";

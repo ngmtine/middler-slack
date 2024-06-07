@@ -4,7 +4,7 @@ import type { Page } from "puppeteer-core";
 const { env }: { env: any } = process;
 
 // slackの新規質問の投稿を待つ
-export const wait4answer = async ({ page }: { page: Page }): Promise<string> => {
+export const wait4question = async ({ page }: { page: Page }): Promise<string> => {
     let text = "";
     const interval = env.waitingInterval;
     const timer = promiseSetInterval(interval);

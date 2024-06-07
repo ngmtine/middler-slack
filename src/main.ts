@@ -1,7 +1,7 @@
 import puppeteer from "puppeteer-core";
 import { postSlack } from "./slackFunctions/postSlack";
 import { sendPostRequest } from "./slackFunctions/sendPostRequest";
-import { wait4answer } from "./slackFunctions/wait4answer";
+import { wait4question } from "./slackFunctions/wait4question";
 import { getBrowserIp } from "./util/getBrowserIp";
 
 const { env }: { env: any } = process;
@@ -23,7 +23,7 @@ const main = async () => {
             console.log("loop!!");
 
             // 質問取得
-            const questionText = await wait4answer({ page: slackPage });
+            const questionText = await wait4question({ page: slackPage });
             console.log(`%cquestion: ${questionText}`, "background: white; color: blue;");
 
             // 質問をローカルサーバーに投げる

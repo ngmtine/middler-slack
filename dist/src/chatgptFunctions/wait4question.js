@@ -1,13 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.wait4answer = void 0;
+exports.wait4question = void 0;
 const promises_1 = require("node:timers/promises");
 const html2markdown_1 = require("../util/html2markdown");
 const text2HTMLDocument_1 = require("../util/text2HTMLDocument");
 const { env } = process;
 let prevConversationTurn = "";
 // chatgptの回答を待つ
-const wait4answer = async ({ page }) => {
+const wait4question = async ({ page }) => {
     console.log(`prevConversationTurn: ${prevConversationTurn}`);
     let text = "";
     let html = "";
@@ -61,4 +61,4 @@ const wait4answer = async ({ page }) => {
     }
     return { text, html };
 };
-exports.wait4answer = wait4answer;
+exports.wait4question = wait4question;

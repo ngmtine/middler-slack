@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
 const postSlack_1 = require("./slackFunctions/postSlack");
 const sendPostRequest_1 = require("./slackFunctions/sendPostRequest");
-const wait4answer_1 = require("./slackFunctions/wait4answer");
+const wait4question_1 = require("./slackFunctions/wait4question");
 const getBrowserIp_1 = require("./util/getBrowserIp");
 const { env } = process;
 const main = async () => {
@@ -23,7 +23,7 @@ const main = async () => {
         try {
             console.log("loop!!");
             // 質問取得
-            const questionText = await (0, wait4answer_1.wait4answer)({ page: slackPage });
+            const questionText = await (0, wait4question_1.wait4question)({ page: slackPage });
             console.log(`%cquestion: ${questionText}`, "background: white; color: blue;");
             // 質問をローカルサーバーに投げる
             const answerText = await (0, sendPostRequest_1.sendPostRequest)({ text: questionText });

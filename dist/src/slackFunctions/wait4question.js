@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.wait4answer = void 0;
+exports.wait4question = void 0;
 const promises_1 = require("node:timers/promises");
 const { env } = process;
 // slackの新規質問の投稿を待つ
-const wait4answer = async ({ page }) => {
+const wait4question = async ({ page }) => {
     let text = "";
     const interval = env.waitingInterval;
     const timer = (0, promises_1.setInterval)(interval);
@@ -33,4 +33,4 @@ const wait4answer = async ({ page }) => {
     }
     return text;
 };
-exports.wait4answer = wait4answer;
+exports.wait4question = wait4question;
