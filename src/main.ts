@@ -1,8 +1,9 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import type { Page } from "puppeteer-core";
-
-import { chatgptMonitoring, postChatgpt, startBrowser } from "./functions";
+import { postChatgpt } from "./chatgptFunctions/postChatgpt";
+import { startBrowser } from "./chatgptFunctions/startBrowser";
+import { wait4answer } from "./chatgptFunctions/wait4answer";
 
 const { env }: { env: any } = process;
 
@@ -24,7 +25,7 @@ app.post("/api/chat", async (c) => {
         await postChatgpt({ page: chatgptPage, text });
 
         // 回答完了を待つ
-        const answerText = await chatgptMonitoring({ page: chatgptPage });
+        const answerText = await wait4answer({ page: chatgptPage });
         console.log(`%canswer: ${answerText}`, "background: white; color: red;");
 
         // 返却

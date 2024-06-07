@@ -1,8 +1,6 @@
 import { setInterval as promiseSetInterval } from "node:timers/promises";
-
 import type { ElementHandle, Page } from "puppeteer-core";
-import { startBrowser } from "../src/functions";
-
+import { startBrowser } from "../src/chatgptFunctions/startBrowser";
 import { html2markdown } from "../src/util/html2markdown";
 import { text2HTMLDocument } from "../src/util/text2HTMLDocument";
 
