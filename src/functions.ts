@@ -26,20 +26,20 @@ let prevConversationTurn = "";
 
 // chatgptの回答を待つ
 export const chatgptMonitoring = async ({ page }: { page: Page }): Promise<string> => {
-    console.log(prevConversationTurn);
+    console.log(`prevConversationTurn: ${prevConversationTurn}`);
 
-    let generatingText = "";
+    let output = "";
+    let loopCounter = 0;
+
     const interval = env.waitingInterval;
     const timer = promiseSetInterval(interval);
-
-    let loopCounter = 0;
 
     for await (const _ of timer) {
         try {
             // 応答がない場合強制終了
             loopCounter++;
             if (loopCounter > 100) {
-                generatingText = "timeout!! No response from chatgpt!!";
+                output = "timeout!! No response from chatgpt!!";
                 break;
             }
 
@@ -56,23 +56,23 @@ export const chatgptMonitoring = async ({ page }: { page: Page }): Promise<strin
 
             // HTMLDivElementに変換
             const doc = text2HTMLDocument(htmlText);
-            const div = doc.getElementsByTagName("div")[0];
+            const div = doc.getElementsByTagName("div")?.[0];
             if (!div) continue;
 
             // 前回の回答を取得した場合はループ継続
             const conversationTurn = div.dataset.testid ?? "";
             if (prevConversationTurn === conversationTurn) continue;
 
-            // markdownテキストを取得
+            // 回答の親要素取得
             const answerDiv = div.querySelector("div.markdown") as HTMLDivElement | null;
             if (!answerDiv) continue;
-            const text = html2markdown(answerDiv);
 
             // 回答生成中ならばループ継続
-            if (text !== generatingText) {
-                generatingText = text;
-                continue;
-            }
+            const isGenerating = answerDiv.classList.contains("result-streaming");
+            if (isGenerating) continue;
+
+            // markdownテキストを取得
+            output = html2markdown(answerDiv);
 
             // 回答完了したらループ終了
             prevConversationTurn = conversationTurn;
@@ -82,7 +82,7 @@ export const chatgptMonitoring = async ({ page }: { page: Page }): Promise<strin
         }
     }
 
-    return generatingText;
+    return output;
 };
 
 // chatgptに質問を投げる
