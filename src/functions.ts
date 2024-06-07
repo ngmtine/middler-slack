@@ -91,13 +91,13 @@ export const postChatgpt = async ({ page, text }: { page: Page; text: string }) 
     page.bringToFront();
 
     // 入力欄要素取得
-    const inputArea = await page.waitForSelector("main form");
+    const inputArea = await page.waitForSelector("main form textarea");
     if (!inputArea) throw new Error("inputArea undefined!!");
 
     // 入力欄要素にテキスト入力
-    // https://github.com/puppeteer/puppeteer/issues/1648#issuecomment-431755748
-    await inputArea.press("Backspace");
-    await inputArea.type(text);
+    await inputArea.evaluate((div, text) => (div.textContent = text), text);
+    await page.keyboard.press("End");
+    await page.keyboard.press("Enter");
 
     // 送信ボタン押下
     const button = await page.waitForSelector("main form button[data-testid='fruitjuice-send-button']", { timeout: 1000 * 10 });
