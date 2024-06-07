@@ -23,7 +23,6 @@ export const startBrowser = async (url: string): Promise<Page> => {
 
 // chatgptの回答を待つ
 export const chatgptMonitoring = async ({ page }: { page: Page }): Promise<string> => {
-    let prevText = "";
     let generatingText = "";
 
     const interval = env.waitingInterval; // 短すぎると回答完了前にreturnしてしまう事に注意
@@ -57,7 +56,7 @@ export const chatgptMonitoring = async ({ page }: { page: Page }): Promise<strin
             }
 
             // 回答完了したらループ終了
-            if (text !== prevText) break;
+            break;
         } catch (error) {
             console.error(error);
         }

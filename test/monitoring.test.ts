@@ -8,7 +8,6 @@ import { html2markdown } from "../src/util/html2markdown";
 const { env }: { env: any } = process;
 
 export const monitoringTest = async ({ page }: { page: Page }): Promise<string> => {
-    let prevText = "";
     let generatingText = "";
 
     const interval = env.waitingInterval; // 短すぎると回答完了前にreturnしてしまう事に注意
@@ -42,7 +41,7 @@ export const monitoringTest = async ({ page }: { page: Page }): Promise<string> 
             }
 
             // 回答完了したらループ終了
-            if (text !== prevText) break;
+            break;
         } catch (error) {
             console.error(error);
         }
