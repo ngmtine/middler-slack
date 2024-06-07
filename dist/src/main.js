@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const node_fs_1 = require("node:fs");
 const node_server_1 = require("@hono/node-server");
 const hono_1 = require("hono");
 const postChatgpt_1 = require("./chatgptFunctions/postChatgpt");
@@ -21,10 +22,16 @@ app.post("/api/chat", async (c) => {
         // 質問投稿
         await (0, postChatgpt_1.postChatgpt)({ page: chatgptPage, text });
         // 回答完了を待つ
-        const { text: answerText, html } = await (0, wait4answer_1.wait4answer)({ page: chatgptPage });
+        const { text: answerText, html: responseHtml } = await (0, wait4answer_1.wait4answer)({ page: chatgptPage });
         console.log(`%canswer: ${answerText}`, "background: white; color: red;");
+        // htmlをローカルに保存
+        if (responseHtml) {
+            const filepath = "./response.html";
+            (0, node_fs_1.writeFileSync)(filepath, responseHtml);
+            console.log(`HTML saved to ${filepath}`);
+        }
         // 返却
-        return c.json({ text: answerText, html });
+        return c.json({ text: answerText, html: responseHtml });
     }
     catch (error) {
         console.error(error);

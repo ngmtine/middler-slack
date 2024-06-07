@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import type { Page } from "puppeteer-core";
@@ -25,11 +26,18 @@ app.post("/api/chat", async (c) => {
         await postChatgpt({ page: chatgptPage, text });
 
         // 回答完了を待つ
-        const { text: answerText, html } = await wait4answer({ page: chatgptPage });
+        const { text: answerText, html: responseHtml } = await wait4answer({ page: chatgptPage });
         console.log(`%canswer: ${answerText}`, "background: white; color: red;");
 
+        // htmlをローカルに保存
+        if (responseHtml) {
+            const filepath = "./response.html";
+            writeFileSync(filepath, responseHtml);
+            console.log(`HTML saved to ${filepath}`);
+        }
+
         // 返却
-        return c.json({ text: answerText, html });
+        return c.json({ text: answerText, html: responseHtml });
     } catch (error: any) {
         console.error(error);
         return c.json({ error: error.message }, 200);
