@@ -1,3 +1,5 @@
+# middler: chatgpt api
+
 By setting up a local server with Hono.js and automating Chrome via Puppeteer, we'll deliver a ChatGPT API.
 
 ![image](./sukusho.png)
@@ -24,12 +26,12 @@ https://qiita.com/lx-sasabo/items/9817adf4fa731b985b00
 
 ## 使い方
 
-win側のchromeを--remote-debugging-portを指定して起動  
+win 側の chrome を--remote-debugging-port を指定して起動  
 https://stackoverflow.com/questions/67703601/running-puppeteer-on-wsl2-controlling-the-chrome-on-windows  
 `Start-Process -FilePath "C:\Program Files\Google\Chrome\Application\chrome.exe" -ArgumentList "--remote-debugging-port=9222"`
 
-wsl側でサーバープロセス起動  
-`node --env-file=.env ./dist/main.js`
+wsl 側でサーバープロセス起動  
+`node --env-file=.env ./dist/src/main.js`
 
 ## 疎通確認
 
@@ -45,8 +47,8 @@ curl -X POST http://localhost:3000/api/chat \
 
 ## FAQ
 
-・chat gptの回答が途中で途切れる  
-=> envのwaitingIntervalを増やす
+・chat gpt の回答が途中で途切れる  
+=> env の waitingInterval を増やす
 
-・wsl以外の環境で動かしたい  
+・wsl 以外の環境で動かしたい  
 => コントリビュートしてね
