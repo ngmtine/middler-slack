@@ -4,7 +4,7 @@ import { html2markdown } from "../src/util/html2markdown";
 import { text2HTMLDocument } from "../src/util/text2HTMLDocument";
 
 const main = () => {
-    const dir = "./src/test/html";
+    const dir = "./test/html";
     const files = readdirSync(dir);
 
     for (const file of files) {
