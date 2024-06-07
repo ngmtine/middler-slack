@@ -7,8 +7,8 @@ exports.postChatgpt = exports.chatgptMonitoring = exports.startBrowser = void 0;
 const promises_1 = require("node:timers/promises");
 const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
 const getBrowserIp_1 = require("./util/getBrowserIp");
-const text2HTMLDocument_1 = require("./util/text2HTMLDocument");
 const html2markdown_1 = require("./util/html2markdown");
+const text2HTMLDocument_1 = require("./util/text2HTMLDocument");
 const { env } = process;
 // Pageオブジェクト取得
 const startBrowser = async (url) => {
@@ -23,44 +23,59 @@ const startBrowser = async (url) => {
     return chatgptPage;
 };
 exports.startBrowser = startBrowser;
+let prevConversationTurn = "";
 // chatgptの回答を待つ
 const chatgptMonitoring = async ({ page }) => {
-    let prevText = "";
-    let generatingText = "";
-    const interval = env.waitingInterval; // 短すぎると回答完了前にreturnしてしまう事に注意
+    console.log(`prevConversationTurn: ${prevConversationTurn}`);
+    let output = "";
+    let loopCounter = 0;
+    const interval = env.waitingInterval;
     const timer = (0, promises_1.setInterval)(interval);
     for await (const _ of timer) {
         try {
+            // 応答がない場合強制終了
+            loopCounter++;
+            if (loopCounter > 100) {
+                output = "timeout!! No response from chatgpt!!";
+                break;
+            }
             // ヘッドレスで起動している場合は不要
             page.bringToFront();
             // 最後の回答の要素を取得
-            const messageContentList = await page.$$("div.markdown");
+            const messageContentList = await page.$$("div[data-testid]");
             const lastMessageSection = messageContentList.at(-1);
             if (!lastMessageSection)
                 continue;
-            // 最後の回答の要素のinnerHtmlを取得
-            const htmlText = await lastMessageSection.evaluate((div) => div.innerHTML);
+            // 最後の回答の要素の平文htmlを取得
+            const htmlText = await lastMessageSection.evaluate((div) => div.outerHTML);
             // HTMLDivElementに変換
             const doc = (0, text2HTMLDocument_1.text2HTMLDocument)(htmlText);
-            const div = doc.getElementsByTagName("div")[0];
+            const div = doc.getElementsByTagName("div")?.[0];
             if (!div)
-                throw new Error("cannot get div!!");
-            // markdownテキストに変換
-            const text = (0, html2markdown_1.html2markdown)(div);
-            // 回答生成中ならばループ継続
-            if (text !== generatingText) {
-                generatingText = text;
                 continue;
-            }
+            // 前回の回答を取得した場合はループ継続
+            const conversationTurn = div.dataset.testid ?? "";
+            if (prevConversationTurn === conversationTurn)
+                continue;
+            // 回答の親要素取得
+            const answerDiv = div.querySelector("div.markdown");
+            if (!answerDiv)
+                continue;
+            // 回答生成中ならばループ継続
+            const isGenerating = answerDiv.classList.contains("result-streaming");
+            if (isGenerating)
+                continue;
+            // markdownテキストを取得
+            output = (0, html2markdown_1.html2markdown)(answerDiv);
             // 回答完了したらループ終了
-            if (text !== prevText)
-                break;
+            prevConversationTurn = conversationTurn;
+            break;
         }
         catch (error) {
             console.error(error);
         }
     }
-    return generatingText;
+    return output;
 };
 exports.chatgptMonitoring = chatgptMonitoring;
 // chatgptに質問を投げる
@@ -68,13 +83,13 @@ const postChatgpt = async ({ page, text }) => {
     // ヘッドレスで起動している場合は不要
     page.bringToFront();
     // 入力欄要素取得
-    const inputArea = await page.waitForSelector("main form");
+    const inputArea = await page.waitForSelector("main form textarea");
     if (!inputArea)
         throw new Error("inputArea undefined!!");
     // 入力欄要素にテキスト入力
-    // https://github.com/puppeteer/puppeteer/issues/1648#issuecomment-431755748
-    await inputArea.press("Backspace");
-    await inputArea.type(text);
+    await inputArea.evaluate((div, text) => (div.textContent = text), text);
+    await page.keyboard.press("End");
+    await page.keyboard.press("Enter");
     // 送信ボタン押下
     const button = await page.waitForSelector("main form button[data-testid='fruitjuice-send-button']", { timeout: 1000 * 10 });
     if (!button)

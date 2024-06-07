@@ -3,11 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.monitoringTest = void 0;
 const promises_1 = require("node:timers/promises");
 const functions_1 = require("../src/functions");
-const text2HTMLDocument_1 = require("../src/util/text2HTMLDocument");
 const html2markdown_1 = require("../src/util/html2markdown");
+const text2HTMLDocument_1 = require("../src/util/text2HTMLDocument");
 const { env } = process;
 const monitoringTest = async ({ page }) => {
-    let prevText = "";
     let generatingText = "";
     const interval = env.waitingInterval; // 短すぎると回答完了前にreturnしてしまう事に注意
     const timer = (0, promises_1.setInterval)(interval);
@@ -35,8 +34,7 @@ const monitoringTest = async ({ page }) => {
                 continue;
             }
             // 回答完了したらループ終了
-            if (text !== prevText)
-                break;
+            break;
         }
         catch (error) {
             console.error(error);
