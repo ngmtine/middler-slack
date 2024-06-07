@@ -12,7 +12,7 @@ const wait4answer = async ({ page }) => {
     let text = "";
     let html = "";
     let loopCounter = 0;
-    const interval = env.waitingInterval;
+    const interval = env.waitingInterval ?? 1000;
     const timer = (0, promises_1.setInterval)(interval);
     for await (const _ of timer) {
         try {

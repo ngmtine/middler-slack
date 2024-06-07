@@ -20,7 +20,7 @@ export const wait4answer = async ({ page }: { page: Page }): Promise<Returns> =>
     let html = "";
     let loopCounter = 0;
 
-    const interval = env.waitingInterval;
+    const interval = env.waitingInterval ?? 1000;
     const timer = promiseSetInterval(interval);
 
     for await (const _ of timer) {

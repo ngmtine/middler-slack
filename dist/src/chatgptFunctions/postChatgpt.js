@@ -10,9 +10,9 @@ const postChatgpt = async ({ page, text }) => {
     if (!inputArea)
         throw new Error("inputArea undefined!!");
     // 入力欄要素にテキスト入力
-    await inputArea.evaluate((div, text) => (div.textContent = text), text);
-    await page.keyboard.press("End");
-    await page.keyboard.press("Enter");
+    // https://github.com/puppeteer/puppeteer/issues/1648#issuecomment-431755748
+    await inputArea.press("Backspace");
+    await inputArea.type(text);
     // 送信ボタン押下
     const button = await page.waitForSelector("main form button[data-testid='fruitjuice-send-button']", { timeout: 1000 * 10 });
     if (!button)

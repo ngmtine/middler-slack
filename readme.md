@@ -47,8 +47,5 @@ curl -X POST http://localhost:3000/api/chat \
 
 ## FAQ
 
-・chat gpt の回答が途中で途切れる  
-=> env の waitingInterval を増やす
-
 ・wsl 以外の環境で動かしたい  
 => コントリビュートしてね
