@@ -14,12 +14,16 @@ export const monitorSlack = async ({ page }: { page: Page }): Promise<string> =>
             page.bringToFront();
 
             // 最後の質問の要素を取得
-            const messageContentList = await page.$$("div.p-rich_text_section");
+            const messageContentList = await page.$$("div[data-qa='virtual-list-item']");
             const lastMessageSection = messageContentList.at(-1);
             if (!lastMessageSection) continue;
 
+            // 投稿者
+            const senderName = await lastMessageSection.evaluate((elm) => elm.querySelector("div[data-qa='message_content'] span.offscreen")?.textContent);
+
             // 最後の質問の要素のテキストを取得
-            text = (await lastMessageSection.evaluate((el) => el.innerText)) ?? "";
+            // @ts-ignore
+            text = await lastMessageSection.evaluate((elm) => elm.querySelector("div.c-message_kit__blocks")?.innerText ?? "");
 
             // "-"ならばループ継続
             if (text === "-") continue;
