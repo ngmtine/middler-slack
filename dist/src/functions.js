@@ -7,9 +7,11 @@ exports.postChatgpt = exports.chatgptMonitoring = exports.startBrowser = void 0;
 const promises_1 = require("node:timers/promises");
 const puppeteer_core_1 = __importDefault(require("puppeteer-core"));
 const getBrowserIp_1 = require("./util/getBrowserIp");
+const text2HTMLDocument_1 = require("./util/text2HTMLDocument");
+const html2markdown_1 = require("./util/html2markdown");
 const { env } = process;
 // Pageオブジェクト取得
-const startBrowser = async () => {
+const startBrowser = async (url) => {
     // ブラウザ起動
     const browserIp = env.browserIp ?? (0, getBrowserIp_1.getBrowserIp)();
     const browserPort = env.browserPort ?? 9222;
@@ -17,7 +19,7 @@ const startBrowser = async () => {
     const browser = await puppeteer_core_1.default.connect(options);
     // chatgptにアクセス
     const chatgptPage = await browser.newPage();
-    await chatgptPage.goto(env.chatgptUrl, { waitUntil: "domcontentloaded" });
+    await chatgptPage.goto(url, { waitUntil: "domcontentloaded" });
     return chatgptPage;
 };
 exports.startBrowser = startBrowser;
@@ -36,31 +38,15 @@ const chatgptMonitoring = async ({ page }) => {
             const lastMessageSection = messageContentList.at(-1);
             if (!lastMessageSection)
                 continue;
-            // 最後の回答の要素のテキストを取得
-            // memo: evaluateのコールバックを関数化できないかもしれない issueあげる もう眠い
-            const text = await lastMessageSection.evaluate((div) => {
-                let out = "";
-                for (const child of div.children) {
-                    switch (child.tagName) {
-                        case "P": {
-                            const content = child.innerHTML.replaceAll(/<br>/g, "\n");
-                            out += content.replaceAll(/<code>(.*?)<\/code>/g, "`$1`");
-                            out += "\n";
-                            break;
-                        }
-                        case "PRE": {
-                            const lang = child.getElementsByTagName("span")[0].textContent;
-                            const code = child.getElementsByTagName("code")[0].textContent;
-                            out += `\n\`\`\`${lang}\n${code}\`\`\`\n\n`;
-                            break;
-                        }
-                        default: {
-                            out += child.textContent + "\n";
-                        }
-                    }
-                }
-                return out;
-            });
+            // 最後の回答の要素のinnerHtmlを取得
+            const htmlText = await lastMessageSection.evaluate((div) => div.innerHTML);
+            // HTMLDivElementに変換
+            const doc = (0, text2HTMLDocument_1.text2HTMLDocument)(htmlText);
+            const div = doc.getElementsByTagName("div")[0];
+            if (!div)
+                throw new Error("cannot get div!!");
+            // markdownテキストに変換
+            const text = (0, html2markdown_1.html2markdown)(div);
             // 回答生成中ならばループ継続
             if (text !== generatingText) {
                 generatingText = text;

@@ -7,7 +7,7 @@ const { env } = process;
 const app = new hono_1.Hono();
 let chatgptPage;
 (async () => {
-    chatgptPage = await (0, functions_1.startBrowser)();
+    chatgptPage = await (0, functions_1.startBrowser)(env.chatgptUrl);
 })();
 app.post("/api/chat", async (c) => {
     try {
