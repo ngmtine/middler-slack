@@ -25,11 +25,11 @@ app.post("/api/chat", async (c) => {
         await postChatgpt({ page: chatgptPage, text });
 
         // 回答完了を待つ
-        const answerText = await wait4answer({ page: chatgptPage });
+        const { text: answerText, html } = await wait4answer({ page: chatgptPage });
         console.log(`%canswer: ${answerText}`, "background: white; color: red;");
 
         // 返却
-        return c.json({ text: answerText });
+        return c.json({ text: answerText, html });
     } catch (error: any) {
         console.error(error);
         return c.json({ error: error.message }, 200);

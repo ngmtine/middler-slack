@@ -5,13 +5,19 @@ import { text2HTMLDocument } from "../util/text2HTMLDocument";
 
 const { env }: { env: any } = process;
 
+type Returns = {
+    text: string;
+    html: string;
+};
+
 let prevConversationTurn = "";
 
 // chatgptの回答を待つ
-export const wait4answer = async ({ page }: { page: Page }): Promise<string> => {
+export const wait4answer = async ({ page }: { page: Page }): Promise<Returns> => {
     console.log(`prevConversationTurn: ${prevConversationTurn}`);
 
-    let output = "";
+    let text = "";
+    let html = "";
     let loopCounter = 0;
 
     const interval = env.waitingInterval;
@@ -22,7 +28,7 @@ export const wait4answer = async ({ page }: { page: Page }): Promise<string> => 
             // 応答がない場合強制終了
             loopCounter++;
             if (loopCounter > 100) {
-                output = "timeout!! No response from chatgpt!!";
+                text = "timeout!! No response from chatgpt!!";
                 break;
             }
 
@@ -55,15 +61,16 @@ export const wait4answer = async ({ page }: { page: Page }): Promise<string> => 
             if (isGenerating) continue;
 
             // markdownテキストを取得
-            output = html2markdown(answerDiv);
+            text = html2markdown(answerDiv);
 
             // 回答完了したらループ終了
             prevConversationTurn = conversationTurn;
+            html = htmlText;
             break;
         } catch (error) {
             console.error(error);
         }
     }
 
-    return output;
+    return { text, html };
 };
