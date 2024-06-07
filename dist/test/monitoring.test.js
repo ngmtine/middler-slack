@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.monitoringTest = void 0;
 const promises_1 = require("node:timers/promises");
-const functions_1 = require("../src/functions");
+const startBrowser_1 = require("../src/chatgptFunctions/startBrowser");
 const html2markdown_1 = require("../src/util/html2markdown");
 const text2HTMLDocument_1 = require("../src/util/text2HTMLDocument");
 const { env } = process;
@@ -44,7 +44,7 @@ const monitoringTest = async ({ page }) => {
 };
 exports.monitoringTest = monitoringTest;
 (async () => {
-    const geminiPage = await (0, functions_1.startBrowser)(env.geminiUrl);
+    const geminiPage = await (0, startBrowser_1.startBrowser)(env.geminiUrl);
     const answerText = await (0, exports.monitoringTest)({ page: geminiPage });
     console.log(answerText || "ループ終了済み");
 })();
