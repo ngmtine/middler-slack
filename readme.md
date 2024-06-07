@@ -1,7 +1,7 @@
 # slack bot
 
 slack を監視して新規投稿をそのまま  
-https://github.com/ngmtine/middler-slack  
+https://github.com/ngmtine/middler  
 に投げて返答をまた投稿するやつ
 
 # 準備
@@ -22,4 +22,4 @@ https://stackoverflow.com/questions/67703601/running-puppeteer-on-wsl2-controlli
 `Start-Process -FilePath "C:\Program Files\Google\Chrome\Application\chrome.exe" -ArgumentList "--remote-debugging-port=9222"`
 
 ・プロセス開始  
-`node --env-file=.env ./dist/src/main.js`
+`node --env-file=.env ./dist/main.js`
