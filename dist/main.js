@@ -86324,6 +86324,7 @@ var import_promises3 = require("node:timers/promises");
 var { env: env3 } = process;
 var wait4question = async ({ page }) => {
   let text = "";
+  let lastText = "";
   const interval = env3.waitingInterval ?? 500;
   const timer2 = (0, import_promises3.setInterval)(interval);
   for await (const _ of timer2) {
@@ -86331,14 +86332,25 @@ var wait4question = async ({ page }) => {
       page.bringToFront();
       const messageContentList = await page.$$("div[data-qa='virtual-list-item']");
       const lastMessageSection = messageContentList.at(-1);
-      if (!lastMessageSection) continue;
+      if (!lastMessageSection) {
+        console.log("wait4question: \u6700\u5F8C\u306E\u8CEA\u554F\u306E\u8981\u7D20\u304C\u53D6\u5F97\u3067\u304D\u307E\u305B\u3093\u3067\u3057\u305F");
+        continue;
+      }
       const senderName = await lastMessageSection.evaluate((elm) => elm.querySelector("div[data-qa='message_content'] span.offscreen")?.textContent);
-      if (senderName === env3.senderName) continue;
+      if (senderName === env3.senderName) {
+        console.log("wait4question: \u6295\u7A3F\u8005\u304C\u74B0\u5883\u5909\u6570\u3067\u6307\u5B9A\u3055\u308C\u305F\u540D\u524D\u3067\u3042\u308B\u305F\u3081\u7121\u8996\u3057\u307E\u3059");
+        continue;
+      }
       text = await lastMessageSection.evaluate((elm) => {
         const element = elm.querySelector("div.c-message_kit__blocks");
         return element?.innerText ?? "";
       });
       if (text === "-") continue;
+      if (text === lastText) {
+        console.log("wait4question: \u8CEA\u554F\u304C\u524D\u56DE\u3068\u540C\u3058\u3067\u3042\u308B\u305F\u3081\u30EB\u30FC\u30D7\u7D99\u7D9A\u3057\u307E\u3059");
+        continue;
+      }
+      lastText = text;
       break;
     } catch (error) {
       console.error(error);
